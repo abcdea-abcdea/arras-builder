@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <title>Cut's Arras Builder</title>
+    <link rel="icon" href="icon.png">
+    <link rel="manifest" href="manifest.json">
+
+    <meta content="Cut's Arras Builder" property="og:title" />
+    <meta content="A visual tank editor for arras.io private servers." property="og:description" />
+    <meta content="https://dogeiscut.github.io/Arras-Tank-Builder/" property="og:url" />
+    <meta content="https://dogeiscut.github.io/Arras-Tank-Builder/icon.png" property="og:image" />
+    <meta content="#3F73BC" data-react-helmet="true" name="theme-color" />
+
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  </head>
+  <body>
+    <main>
+    </main>
+    <div class="canvasContainer">
+    <canvas id="canvas" width=800 height=600></canvas>
+    <img src="infoblurb.png" class="editorControls info" title ="Editor Controls:
+    Left Click: Place Gun
+    Shift: Snap to 7.5 degrees">
+    </div> 
+    <p>Screenshot Mode: <input type="checkbox" id="screenshotMode">
+      <img src="infoblurb.png" class="info" title ="Default: false
+      Enable this to hide the line and gun display">
+
+    <div class="logo">
+      <img class="logoimg" src="icon.png" alt="logo" width="100" height="100">
+      <h1>Cut's Arras Builder</h1>
+    </div>
+
+    <div class="main panel">
+      <h1>Main:
+        <img src="infoblurb.png" class="info" title ="The main properties that arent part of any sub catagory">
+      </h1>
+
+      <p>Export Name: <input type="text" id="exportName" value="" placeholder="[Auto Generated From Label]">
+        <img src="infoblurb.png" class="info" title ="Default: [Auto Generated From Label]
+        Essentally the ID of the tank, it should be unique and contain no spaces">
+      </p>
+
+      </p>Parent: <input type="text" id="parent" value="genericTank" placeholder="No Parent">
+        <img src="infoblurb.png" class="info" title ="Default: genericTank
+        Defines the parent entity of this entity, any properties of the parent will apply to this tank.
+        for bosses you can use miniboss">
+      </p>
+
+      </p>Label: <input type="text" id="label" value="Tank" placeholder="Unnamed">
+        <img src="infoblurb.png" class="info" title ="Default: Tank
+        Defines the name of this entity, the name will show up in the leaderboard, upgrade menu, and where ever else.">
+      </p>
+
+      </p>Type: <input type="text" id="type" value="tank">
+        <img src="infoblurb.png" class="info" title ="Default: tank
+        The type value, used for a number of things, here are a few values you can use:
+        unknown, tank, food, bullet, wall, swarm, trap, drone, minion, crasher">
+      </p>
+
+      <p>Sides: <input type="range" min="-8" max="16" value="0" class="slider" id="sides" onchange="updateSides()" oninput="updateSides()">
+        <span id="sidesValue">0</span>
+        <img src="infoblurb.png" class="info" title ="Default: 0
+        Defines how many sides this entity's body will have, negative values are like traps and are rounded, 0 is a circle">
+      </p>
+
+      <p>Damage Class: <input type="number" min="0" value="2" id="damageClass" >
+        <img src="infoblurb.png" class="info" title ="Default: 2
+        0: Default, 1: Food (Shapes) 2: Tanks, 3: Obstactles ">
+      </p>
+
+      <p>Danger: <input type="number" min="0" value="5" id="danger" >
+        <img src="infoblurb.png" class="info" title ="Default: 5
+        Something for AI">
+
+      <p>Motion Type: <select id="motionType" >
+        <option value="grow">Grow</option>
+        <option value="glide">Glide</option>
+        <option value="accel">Accelerate</option>
+        <option value="motor" selected>Motor</option>
+        <option value="spgw">SPGW</option>
+        <option value="chonk">Chonk</option>
+        <option value="swarm">Swarm</option>
+        <option value="chase">Chase</option>
+        <option value="drift">Drift</option>
+        <option value="bound">Bound</option>
+        <option value="">None</option>
+      </select>
+      <img src="infoblurb.png" class="info" title ="Default: Motor
+        The motion type describes the way the entity moves.
+        Grow: changes its size by 1 every game tick
+        Glide: Its what bullets use, slows down over time (dampens 0.05)
+        Accelerate: Accelerates over time (accels 0.05)
+        Motor: What tanks use, engine controls
+        SPGW: appears to be grow but slower and accelerates over time (grows 0.75, accels 0.025)
+        Chonk: appears to be grow but faster and accelerates over time (grows 50, accels 0.025)
+        Swarm: what swarm drones use
+        Chase: what drones use
+        Drift: what shapes use
+        Bound: Nothing uses it and I can't tell what it does.">
+      </p>
+
+      <p>Facing Type: <select id="facingType" >
+        <option value="autospin">Auto spin</option>
+        <option value="turnWithSpeed">Turn with speed</option>
+        <option value="spin">Spin</option>
+        <option value="fastspin">Fast spin</option>
+        <option value="withMotion">Turn with motion</option>
+        <option value="looseWithMotion">Turn with motion (interpolated)</option>
+        <option value="toTarget" selected>To target</option>
+        <option value="locksFacing">Locks facing</option>
+        <option value="smoothToTarget">To target (interpolated)</option>
+        <option value="bound">Bound</option>
+        <option value="">None</option>
+      </select>
+      <img src="infoblurb.png" class="info" title ="Default: To target
+      The facing type describes how the entity faces/turns.
+      Auto spin: spins at a constant speed (0.02)
+      Turn with speed: Spins as fast as the entity moves (Traps, blocks, boomerangs, and shapes use this)
+      Spin: spins at a constant speed (0.05)
+      Fast spin: spins at a constant speed (0.1)
+      With motion: turns towards the motion vector
+      Loose with motion: turns towards the motion vector (interpolated)
+      To target: turns towards the target (what all tanks use)
+      Locks facing: locks the facing to the target (what the boomer tank uses, hold the alt fire key to lock facing)
+      Smooth to target: turns towards the target (interpolated) (Drones use this)
+      Bound: Nothing uses it and again, I can't tell what it does.">
+      </p>
+
+      <p>Size: <input type="range" min="0" max="100" value="12" id="size" class="slider" onchange="updateSize()" oninput="updateSize()"> <input type="number" step="any" min="0" value="12" id="sizeNumInput" onchange="updateSizeNum()" oninput="updateSizeNum()">
+        <img src="infoblurb.png" class="info" title ="Default: 12
+        Defines the size of this entity, theres really no unit of measurement so just know that tanks are normally a size of 12 ">
+      </p>
+
+      <p>Max Children: <input type="number" min="0" value="0" id="maxChildren">
+        <img src="infoblurb.png" class="info" title ="Default: 0
+        Defines the maximum number of entities this entity can make, 0 is no limit
+        Use this to limit the amount of drones the tank can have.">
+      </p>
+
+      <p>Damage Effects: <input type="checkbox" id="damageEffects">
+        <img src="infoblurb.png" class="info" title ="Default: false
+        I don't know what this does, good luck! :)">
+
+      <!--create a dropdown entry for each gun-->
+      <p>Guns: <select id="guns" onchange="updateGunsDropdown()" oninput="updateGunsDropdown()" disabled = "true">
+        <option value="YOU SHOULDNT SEE THIS BALLS BALLS BALLS" hidden disabled selected>No Guns</option>
+        <option value="selection" hidden disabled>Select A Gun</option>
+      </select>
+        <img src="infoblurb.png" class="info" title ="Every gun you place will show up here, choose it in the dropdown to edit, delete, or re-layer it.">
+      </p>
+
+      <!--"teal": "#7ADBBC",
+          "lgreen": "#B9E87E",
+          "orange": "#E7896D",
+          "yellow": "#FDF380",
+          "lavender": "#B58EFD",
+          "pink": "#EF99C3",
+          "vlgrey": "#E8EBF7",
+          "lgrey": "#AA9F9E",
+          "guiwhite": "#FFFFFF",
+          "black": "#484848",
+          "blue": "#3CA4CB",
+          "green": "#8ABC3F",
+          "red": "#E03E41",
+          "gold": "#EFC74B",
+          "purple": "#8D6ADF",
+          "magenta": "#CC669C",
+          "grey": "#A7A7AF",
+          "dgrey": "#726F6F",
+          "white": "#DBDBDB",
+          "guiblack": "#000000"-->
+      <p>Color:
+        <input type="button" class="editbuttons presetteal" id="setscolorteal" onclick="setColor(1)" title="Teal" style="visibility: visible;">
+        <input type="button" class="editbuttons presetlgreen" id="setscolorlgreen" onclick="setColor(2)" title="Light Green" style="visibility: visible;">
+        <input type="button" class="editbuttons presetorange" id="setscolororange" onclick="setColor(3)" title="Orange" style="visibility: visible;">
+        <input type="button" class="editbuttons presetyellow" id="setscoloryellow" onclick="setColor(4)" title="Yellow" style="visibility: visible;">
+        <input type="button" class="editbuttons presetlavender" id="setscolorlavender" onclick="setColor(5)" title="Lavender" style="visibility: visible;">
+        <input type="button" class="editbuttons presetpink" id="setscolorpink" onclick="setColor(6)" title="Pink" style="visibility: visible;">
+        <input type="button" class="editbuttons presetvlgrey" id="setscolorvlgrey" onclick="setColor(7)" title="Very Light Grey" style="visibility: visible;">
+        <input type="button" class="editbuttons presetlgrey" id="setscolorlgrey" onclick="setColor(8)" title="Light Grey" style="visibility: visible;">
+        <input type="button" class="editbuttons presetguiwhite" id="setscolorguiwhite" onclick="setColor(9)" title="GUI White" style="visibility: visible;">
+        <input type="button" class="editbuttons presetblack" id="setscolorblack" onclick="setColor(10)" title="Black" style="visibility: visible;">
+        <input type="button" class="editbuttons presetblue" id="setscolorblue" onclick="setColor(11)" title="Blue" style="visibility: visible;">
+        <input type="button" class="editbuttons presetgreen" id="setscolorgreen" onclick="setColor(12)" title="Green" style="visibility: visible;">
+        <input type="button" class="editbuttons presetred" id="setscolorred" onclick="setColor(13)" title="Red" style="visibility: visible;">
+        <input type="button" class="editbuttons presetgold" id="setscolorgold" onclick="setColor(14)" title="Gold" style="visibility: visible;">
+        <input type="button" class="editbuttons presetpurple" id="setscolorpurple" onclick="setColor(15)" title="Purple" style="visibility: visible;">
+        <input type="button" class="editbuttons presetmagenta" id="setscolormagenta" onclick="setColor(16)" title="Magenta" style="visibility: visible;">
+        <input type="button" class="editbuttons presetgrey" id="setscolorgrey" onclick="setColor(17)" title="Grey" style="visibility: visible;">
+        <input type="button" class="editbuttons presetdgrey" id="setscolordgrey" onclick="setColor(18)" title="Dark Grey" style="visibility: visible;">
+        <input type="button" class="editbuttons presetwhite" id="setscolorwhite" onclick="setColor(19)" title="White" style="visibility: visible;">
+        <input type="button" class="editbuttons presetguiblack" id="setscolorguiblack" onclick="setColor(20)" title="GUI Black" style="visibility: visible;">
+        <input type="button" class="editbuttons presetdefault" id="setscolordefault" onclick="setColor(0)" title="Default" style="visibility: visible;">
+        <img src="infoblurb.png" class="info" title ="Default: Default
+        Defines the color of this entity, the color will show up in the leaderboard, upgrade menu, and where ever else. Oddly enough, it wont show up on the tank for the user but everyone else will see it fine. Selecting the default color will remove the property leaving it up to the game.">
+      </p>
+      
+      <!--ACCELERATION: base.ACCEL,
+          SPEED: base.SPEED,
+          HEALTH: base.HEALTH, 
+          DAMAGE: base.DAMAGE, 
+          PENETRATION: base.PENETRATION, 
+          SHIELD: base.SHIELD,
+          REGEN: base.REGEN,
+          FOV: base.FOV,
+          DENSITY: base.DENSITY,
+          PUSHABILITY: 0.9,
+          HETERO: 3,-->
+      <h2>Body:
+        <img src="infoblurb.png" class="info" title ="The first checkbox makes it a multiple of that properties base, the 2nd checkbox enables the property">
+      </h2>
+      <ul>
+      <li>Acceleration:
+      <input type="number" step="any" id="acceleration" min="-10" max="10" value="1" onchange="updateAcceleration()" oninput="updateAcceleration()" disabled = "true"> <input type="checkbox" id="accelerationbasemulti" onclick="updateAcceleration()" checked="true" disabled = "true"> <input type="checkbox" id="accelerationenable" onclick="updateAcceleration()">
+      <img src="infoblurb.png" class="info" title ="Default: 1, true, false
+      How long it takes for the tank to reach max speed">
+      </li>
+      <li>Speed:
+      <input type="number" step="any" id="speed" min="-10" max="10" value="1" onchange="updateSpeed()" oninput="updateSpeed()" disabled = "true"> <input type="checkbox" id="speedbasemulti" onclick="updateSpeed()" checked="true" disabled = "true"> <input type="checkbox" id="speedenable" onclick="updateSpeed()">
+      <img src="infoblurb.png" class="info" title ="Default: 1, true, false
+      Max speed">
+      </li>
+      <li>Health:
+      <input type="number" step="any" id="health" min="-10" max="10" value="1" onchange="updateHealth()" oninput="updateHealth()" disabled = "true"> <input type="checkbox" id="healthbasemulti" onclick="updateHealth()" checked="true" disabled = "true"> <input type="checkbox" id="healthenable" onclick="updateHealth()">
+      <img src="infoblurb.png" class="info" title ="Default: 1, true, false
+      Take a guess">
+      </li>
+      <li>Damage:
+      <input type="number" step="any" id="damage" min="-10" max="10" value="1" onchange="updateDamage()" oninput="updateDamage()" disabled = "true"> <input type="checkbox" id="damagebasemulti" onclick="updateDamage()" checked="true" disabled = "true"> <input type="checkbox" id="damageenable" onclick="updateDamage()">
+      <img src="infoblurb.png" class="info" title ="Default: 1, true, false
+      Does not define how much damage its guns do but in fact how much its body does">
+      </li>
+      <li>Penetration:
+      <input type="number" step="any" id="penetration" min="-10" max="10" value="1" onchange="updatePenetration()" oninput="updatePenetration()" disabled = "true"> <input type="checkbox" id="penetrationbasemulti" onclick="updatePenetration()" checked="true" disabled = "true"> <input type="checkbox" id="penetrationenable" onclick="updatePenetration()">
+      <img src="infoblurb.png" class="info" title ="Default: 1, true, false
+      How well this tank can go inside other targets">
+      </li>
+      <li>Shield:
+      <input type="number" step="any" id="shield" min="-10" max="10" value="1" onchange="updateShield()" oninput="updateShield()" disabled = "true"> <input type="checkbox" id="shieldbasemulti" onclick="updateShield()" checked="true" disabled = "true"> <input type="checkbox" id="shieldenable" onclick="updateShield()">
+      <img src="infoblurb.png" class="info" title ="Default: 1, true, false
+      tbh idk why arras has this but imagine half life 2 sheild">
+      </li>
+      <li>Regen:
+      <input type="number" step="any" id="regen" min="-10" max="10" value="1" onchange="updateRegen()" oninput="updateRegen()" disabled = "true"> <input type="checkbox" id="regenbasemulti" onclick="updateRegen()" checked="true" disabled = "true"> <input type="checkbox" id="regenenable" onclick="updateRegen()">
+      <img src="infoblurb.png" class="info" title ="Default: 1, true, false
+      How fast the sheild regenerates">
+      </li>
+      <li>FOV:
+      <input type="number" step="any" id="fov" min="-10" max="10" value="1" onchange="updateFOV()" oninput="updateFOV()" disabled = "true"> <input type="checkbox" id="fovbasemulti" onclick="updateFOV()" checked="true" disabled = "true"> <input type="checkbox" id="fovenable" onclick="updateFOV()">
+      <img src="infoblurb.png" class="info" title ="Default: 1, true, false
+      values between 1 and 2 are recommended">
+      </li>
+      <li>Density:
+      <input type="number" step="any" id="density" min="-10" max="10" value="1" onchange="updateDensity()" oninput="updateDensity()" disabled = "true"> <input type="checkbox" id="densitybasemulti" onclick="updateDensity()" checked="true" disabled = "true"> <input type="checkbox" id="densityenable" onclick="updateDensity()">
+      <img src="infoblurb.png" class="info" title ="Default: 1, true, false
+      How CHONKY it is">
+      </li>
+      <li>Pushability:
+      <input type="number" step="any" id="pushability" min="-10" max="10" value="0.9" onchange="updatePushability()" oninput="updatePushability()" disabled = "true"> <input type="checkbox" id="pushabilityenable" onclick="updatePushability()">
+      <img src="infoblurb.png" class="info" title ="Default: 0.9, false
+      Defines how well other tanks can push it">
+      </li>
+      <li>Hetero:
+      <input type="number" step="any" id="hetero" min="-10" max="10" value="3" onchange="updateHetero()" oninput="updateHetero()" disabled = "true"> <input type="checkbox" id="heteroenable" onclick="updateHetero()">
+      <img src="infoblurb.png" class="info" title ="Default: 3, false
+      Higher hetero means that it will take more damage from the same class its in, so if its a tank, then it wil take more damage getting rammed by other tanks, but not from bullets.">
+      </li>
+      </ul>
+
+      <h2>Enable Advanced Settings: <input type="checkbox" id="advSettings" onclick="updateAdvSettings()" disabled="true"> <img src="infoblurb.png" class="info" title ="Shows more properties to edit such as AI and controllers"></h2>
+      <p>Advanced settings are disabled until they are finished</p>
+    </div>
+
+    <!--LENGTH  WIDTH   ASPECT    X       Y     ANGLE   DELAY-->
+    <div class="guns panel">
+      <h1>Guns:</h1>
+      
+      <p>Length: <input type="range" min="0" max="50" value="18" class="slider" id="gunLength" oninput="updateGunLengthSlider(); updateGunSettings();"> <input type="number" step="any" min="0" value="18" id="gunLengthNum" oninput="updateGunLengthNum(); updateGunSettings();">
+        <img src="infoblurb.png" class="info" title ="Default: 18
+        The length of the gun">
+      </p>
+      <p>Width: <input type="range" min="0" max="30" value="8" class="slider" id="gunWidth" oninput="updateGunWidthSlider(); updateGunSettings();"> <input type="number" step="any" min="0" value="8" id="gunWidthNum" oninput="updateGunWidthNum(); updateGunSettings();">
+        <img src="infoblurb.png" class="info" title ="Default: 8
+        The width of the gun">
+      </p>
+      <p>Aspect: <input type="number" step="any" value="1" id="gunAspect" oninput="updateGunSettings()">
+        <img src="infoblurb.png" class="info" title ="Default: 1
+        Controls how much the gun 'bends'
+        1 and -1: Normal
+        0: Invalid
+        Below 1 above 0: Shrinks Tip
+        Above 1: Enlarges Tip
+        Below 0 above -1: Shrinks Base
+        Below -1: Enlarges Base">
+      </p>
+      <p>X Offset: <input type="range" min="-50" max="50" value="0" class="slider" id="gunX" oninput="updateGunXSlider(); updateGunSettings(); "> <input type="number" step="any" value="0" id="gunXNum" oninput="updateGunXNum(); updateGunSettings();">
+        <img src="infoblurb.png" class="info" title ="Default: 0
+        The x position of the gun relative to its rotation">
+      </p>
+      <p>Y Offset: <input type="range" min="-50" max="50" value="0" class="slider" id="gunY" oninput="updateGunYSlider(); updateGunSettings(); "> <input type="number" step="any" value="0" id="gunYNum" oninput="updateGunYNum(); updateGunSettings();">
+        <img src="infoblurb.png" class="info" title ="Default: 0
+        The y position of the gun relative to its rotation">
+      </p>
+      <p>Delay: <input type="number" step="any" min="0" value="0" id="gunDelay" oninput="updateGunSettings()">
+        <img src="infoblurb.png" class="info" title ="Default: 0
+        The delay before the gun fires, goes from 0 to 1, 1 taking one reload cycle before firing">
+      </p>
+
+      
+    <!--TYPE: exports.bullet,
+            LABEL: '',                  // def
+            STAT_CALCULATOR: 0,         // def
+            WAIT_TO_CYCLE: false,       // def
+            AUTOFIRE: false,            // def
+            SYNCS_SKILLS: false,        // def         
+            MAX_CHILDREN: 0,            // def  
+            ALT_FIRE: false,            // def 
+            NEGATIVE_RECOIL: false,     // def-->
+      <h2>Properties:
+        <img src="infoblurb.png" class="info" title ="The checkbox next to each option enables that option, the first 2 options are required if you want the gun to actually shoot">
+      </h2>
+      <ul>
+        <li>Shoot Settings:
+        <input id="shootSettings" onclick="updateGunProperties()" value="g.basic" disabled="true"> <input type="checkbox" id="shootSettingsEnable" onclick="updateShootSettingsEnable(); updateGunProperties()">
+        <img src="infoblurb.png" class="info" title ="Default: g.basic
+        Defines the reload speed, accuracy, damage, and ect of the gun (not sure how to implement this yet)
+        so for now just put a list of 12 numbers seperated by commas between square brackets.
+
+        Reload: How long it takes for the gun to shoot again
+        Recoil: How far back this gun pushes you when firing
+        Shudder: How much the speed of the ammo varies
+        Size: The size of the ammo
+        Health: How much damage the ammo can take before being removed
+        Penetration: How well the ammo can go through other targets
+        Speed: How fast the ammo comes out of the gun
+        Max speed: Maximum speed of the ammo
+        Range: How long the ammo lasts before being removed
+        Density: the ammo's density
+        Spray: accuracy
+        Resist: ¯\_(ツ)_/¯">
+        </li>
+        <li>Ammo Type:
+        <select id="shootType" onchange="updateGunProperties()" disabled="true">
+          <option value="bullet" selected>Bullets</option>
+          <option value="casing">Shells (Shotgun Bullets)</option>
+          <option value="flare">Flares (Unused)</option>
+          <option value="swarm">Swarm Drones</option>
+          <option value="bee">Bee Drones (From Hives)</option>
+          <option value="autoswarm">Auto Swarm Drones (Does not follow mouse)</option>
+          <option value="accelbullet">Accelerating Bullets (Unused)</option>
+          <option value="growbullet">Growing Bullets (Unused)</option>
+          <option value="trap">Traps</option>
+          <option value="block">Blocks</option>
+          <option value="boomerang">Boomerangs (From Boomer)</option>
+          <option value="drone">Drones</option>
+          <option value="sunchip">Sunchips (From Necromancer)</option>
+          <option value="autosunchip">Auto Sunchips</option>
+          <option value="invissunchip">Invisible Sunchips (From Maleficitor)</option>
+          <option value="gunchip">Gunchips (Unused)</option>
+          <option value="missile">Missiles (From Skimmer)</option>
+          <option value="twistmissile">Twisty Missiles (From Twister)</option>
+          <option value="hypermissile">Hyper Missiles (From A Boss)</option>
+          <option value="snake">Snakes (From Sidewinder)</option>
+          <option value="hive">Hives (From Swarmer)</option>
+          <option value="minion">Minions (From Factory)</option>
+          <option value="pillbox">Pillboxes (From Engineer)</option>
+          <option value="turreteddrone">Turreted Drones (From Overdrive)</option>
+        </select>
+        <img src="infoblurb.png" class="info" title ="Default: Bullets
+        Defines the type of ammo the gun fires, the above setting must be enabled!">
+        </li>
+        <li>Label: <input type="text" id="shootLabel" oninput="updateGunProperties()" placeholder="Unnamed" disabled="true"> <input type="checkbox" id="shootLabelEnable" onclick="updateShootLabelEnable(); updateGunProperties();">
+        <img src="infoblurb.png" class="info" title ="Default: Unnamed
+        The name of the gun, will show up when a player dies to the ammo shot from the gun">
+        </li>
+        <li>Stat Calculator:
+          <select id="statCalculator" onchange="updateGunStatCalculator(); updateGunProperties()" disabled="true"> 
+            <option value="default" selected>Default</option>
+            <option value="bullet">Bullet</option>
+            <option value="drone">Drone</option>
+            <option value="swarm">Swarm</option>
+            <option value="fixedReload">Fixed Reload</option>
+            <option value="thruster">Thruster</option>
+            <option value="sustained">Sustained</option>
+            <option value="necro">Necro</option>
+            <option value="trap">Trap</option>
+          </select>
+          <input type="checkbox" id="statCalculatorEnable" onclick="updatestatCalculatorEnable(); updateGunProperties();">
+          <img src="infoblurb.png" class="info" title ="Default: DEFAULT WHAT DO YOU THINK?
+        Adds some extra stats/special properties to the ammo! This whole thing is a hunk of junk though.
+        
+        Default: No effects
+        Bullet: Identical to Default
+        Drone: Sets pushability to 1, Gives a ton of penetration, and does some other junk with health, damage, and range
+        Swarm: Gives a ton of penetration, Divides health by penetration
+        Fixed Reload: Seemingly does nothing?
+        Thruster: Makes the bullet speed also have effect in the recoil of the bullet's gun
+        Sustained: i know im the programmer and all but whatever out.RANGE = shoot.range; means. The sidewinder n stuff use it
+        Necro: Identical to drone
+        Trap: Identical to Default">
+        </li>
+        <li>dev note: pls finish adding all these before next update</li>
+        
+
+      </ul>
+
+      <h2>Extra Settings:</h2>
+
+        <p>Mirror Guns: <input type="checkbox" id="mirrorGuns"> 
+          <img src="infoblurb.png" class="info" title ="Default: false
+          Places a second gun with a flipped angle and y offset"></p>
+        <p>Delay Offset: <input type="number" step="any" id="delayOffset" value="0" min="-1" max="1" onchange="updateDelayOffset()" oninput="updateDelayOffset()">
+          <img src="infoblurb.png" class="info" title ="Default: 0
+          Adds this amount to the delay for every gun placed, including mirrored guns"></p>
+
+    </div>
+
+    <div class="export panel">
+      <h2 style="text-align:center;">Export Code: <img src="infoblurb.png" class="info" title ="The stuff you copy paste into your private server's definitions.js file!"></h2>
+      <textarea style="display:block; margin-left:auto; margin-right:auto; " id="exportCode" rows="10" cols="50" readonly="readonly"></textarea>    
+    </div>
+
+    <div class="gunpopup panel" id="gunPopup" hidden="true">
+      <h1>What do you want to do with this gun?:</h1>
+      <button class="button" onclick="editGun()" disabled="true">Edit ✎</button>
+      <button class="button" onclick="deleteGun()">Delete 🗑</button>
+      <button class="button" onclick="copySettingsGun()" disabled="true">Copy Settings 🗎</button>
+      <button class="button" onclick="cancelGunPopup()">Cancel 🗙</button>
+      <button class="button" onclick="moveUpGun()" disabled="true">Move Up ▲</button>
+      <button class="button" onclick="moveDownGun()" disabled="true">Move Down ▼</button>
+      <p>Some buttons are disabled and will be added in a future update</p>
+    </div>
+
+    <div class="displaysettings panel" hidden="true">
+      <h1>Display Settings:</h1>
+      <p>Show gun ghost: <input type="checkbox" id="showGunGhost" onclick="updateShowGunGhost()"> <img src="infoblurb.png" class="info" title ="Default: true
+      Shows a ghost of the gun when you are editing it"></p>
+      <p>Draw tank body: <input type="checkbox" id="drawTankBody" onclick="updateDrawTankBody()"> <img src="infoblurb.png" class="info" title ="Default: true
+      Draws the tank body"></p>
+      <p>Draw red line: <input type="checkbox" id="drawRedLine" onclick="updateDrawRedLine()"> <img src="infoblurb.png" class="info" title ="Default: true
+      Draws a red line thats meant to show you which way the tank is facing"></p>
+    </div>
+    
+    <script src="main.js"></script>
+</html>
